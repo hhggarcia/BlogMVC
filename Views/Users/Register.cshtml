@@ -1,0 +1,40 @@
+﻿@model RegisterVM
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>Registrate</h1>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Register">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="col-form-label"></label>
+                <input asp-for="Email" autocomplete="off" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Nombre" class="col-form-label"></label>
+                <input asp-for="Nombre" autocomplete="off" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="col-form-label"></label>
+                <input asp-for="Password" autocomplete="off" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <button class="btn-primary btn">Registrate</button>
+            <a asp-action="Login" class="btn btn-success">Log In</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial"/>
+}
