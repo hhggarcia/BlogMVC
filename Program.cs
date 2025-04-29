@@ -1,6 +1,7 @@
 using BlogMVC.Data;
 using BlogMVC.Entity;
 using BlogMVC.Services;
+using BlogMVC.Utils;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IAlmacenadorArchivo, AlmacenadorArchivosLocal>();
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
 
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer("name=DefaultConnection"));
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => 
+options.UseSqlServer("name=DefaultConnection")
+.UseSeeding(Seeding.Aplicar)
+.UseAsyncSeeding(Seeding.AplicarAsync));
 
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {

@@ -1,4 +1,7 @@
-﻿
+﻿using System;
+using System.IO;
+using System.Text;
+
 namespace BlogMVC.Services
 {
     public class AlmacenadorArchivosLocal : IAlmacenadorArchivo
@@ -25,7 +28,7 @@ namespace BlogMVC.Services
 
             string ruta = Path.Combine(folder, nombreArchivo);
 
-            using (var ms = MemoryStream())
+            using (var ms = new MemoryStream())
             {
                 await archivo.CopyToAsync(ms);
                 var contenido = ms.ToArray();
