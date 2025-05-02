@@ -1,0 +1,44 @@
+﻿@model UserListVM
+
+@{
+    ViewData["Title"] = "Listado Usuarios";
+}
+
+<h1>Usuarios</h1>
+
+@if(Model.Mensaje is not null)
+{
+    <div class="alert alert-success" role="alert">
+        @Model.Mensaje
+    </div>
+}
+
+@if(Model.Users is not null)
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <td>Accion</td>
+                <td>Email</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var usuario in Model.Users)
+            {
+                <tr>
+                    <td>
+                        <a asp-action="RolesUsuario" asp-route-id="@usuario.Id" class="btn btn-primary me-2">
+                        Editar Roles
+                        </a>
+                    </td>
+                    <td>
+                        @usuario.Email
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+} else
+{
+    <p>No hay usuarios para mostrar</p>
+}
