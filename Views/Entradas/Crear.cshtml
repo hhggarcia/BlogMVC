@@ -1,0 +1,41 @@
+﻿@model EntryCreateVM
+
+@{
+    ViewData["Title"] = "Crear Entrada";
+}
+
+<h1>Crear una Entrada</h1>
+
+<h5>
+    Aqui podemos ingresar una entrada al blog
+</h5>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form enctype="multipart/form-data" id="formEntrada" asp-action="Crear">
+    <div class="mb-3">
+        <label asp-for="Titulo" class="form-label"></label>
+        <input type="text" autocomplete="off" asp-for="Titulo" class="form-control"/>
+        <span asp-validation-for="Titulo" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Cuerpo" class="form-label"></label>
+        <input asp-for="Cuerpo" style="display: none" class="form-control"/>
+        <div id="editor"></div>
+        <span id="cuerpo-error" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ImagenPortada" class="form-label"></label>
+        <input asp-for="ImagenPortada" type="file" class="form-control" />
+        <span asp-validation-for="ImagenPortada" class="text-danger"></span>
+    </div>
+
+    <button type="button" onclick="btnEnviarClick()" class="btn btn-primary">Enviar</button>
+    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial"/>
+    <script src="~/js/formulario-entradas.js"></script>
+}

@@ -103,7 +103,7 @@ namespace BlogMVC.Controllers
         }
 
         [HttpGet]
-        //[Authorize(Roles = Constantes.RolAdmin)]
+        [Authorize(Roles = Constantes.RolAdmin)]
         public async Task<IActionResult> Listado(string? mensaje = null)
         {
             var usuarios = await context.Users.Select(x => new UserVM()
@@ -122,7 +122,7 @@ namespace BlogMVC.Controllers
         }
 
         [HttpGet]
-        //[Authorize(Roles = Constantes.RolAdmin)]
+        [Authorize(Roles = Constantes.RolAdmin)]
         public async Task<IActionResult> RolesUsuario(string id)
         {
             var usuario = await userManager.FindByIdAsync(id);
@@ -152,7 +152,7 @@ namespace BlogMVC.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = Constantes.RolAdmin)]
+        [Authorize(Roles = Constantes.RolAdmin)]
         public async Task<IActionResult> EditRoles(EditRolesVM modelo)
         {
             var usuario = await userManager.FindByIdAsync(modelo.UserId);
