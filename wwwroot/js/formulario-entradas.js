@@ -47,3 +47,14 @@ function validarCuerpo() {
 quill.on('text-change', function (delta, oldDelta, source) {
     validarCuerpo();
 });
+
+function mostrarPrevisualizar(event) {
+    const input = event.target;
+    const imagenPreview = document.getElementById("PreviewImagen");
+
+    if (input.files && input.files[0]) {
+        const urlImagen = URL.createObjectURL(input.files[0]);
+        imagenPreview.src = urlImagen;
+        imagenPreview.style.display = "block";
+    }
+}

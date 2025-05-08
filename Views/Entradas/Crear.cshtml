@@ -27,7 +27,8 @@
 
     <div class="mb-3">
         <label asp-for="ImagenPortada" class="form-label"></label>
-        <input asp-for="ImagenPortada" type="file" class="form-control" />
+        <input asp-for="ImagenPortada" type="file" class="form-control" onchange="mostrarPrevisualizar(event)" />
+        <img id="PreviewImagen" class="mt-03" style="display: none; width: 400px" />
         <span asp-validation-for="ImagenPortada" class="text-danger"></span>
     </div>
 

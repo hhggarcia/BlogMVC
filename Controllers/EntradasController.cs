@@ -4,6 +4,7 @@ using BlogMVC.Models;
 using BlogMVC.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlogMVC.Controllers
 {
@@ -20,6 +21,35 @@ namespace BlogMVC.Controllers
             _context = context;
             _almacenarArchivos = almacenarArchivos;
             _serviceUsuarios = serviceUsuarios;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var entry = await _context.Entries
+                .Include(c => c.UsuarioCreacion)
+                .Include(c => c.Comments)
+                    .ThenInclude(c => c.User)
+                    .FirstOrDefaultAsync();
+
+            if (entry is null)
+            {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            var puedeEditar = await _serviceUsuarios.PuedeUsuarioHacerCrudEntradas();
+            var model = new EntryDetailsVM()
+            {
+                Id = entry.Id,
+                Titulo = entry.Titulo,
+                Cuerpo = entry.Cuerpo,
+                PortadaUrl = entry.PortadaUrl,
+                FechaPublicacion = entry.FechaPublicacion,
+                EscritoPor = entry.UsuarioCreacion!.Nombre,
+                MostrarBotonEdicion = puedeEditar
+            };
+
+            return View(model);
         }
 
         [HttpGet]
