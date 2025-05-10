@@ -87,10 +87,74 @@ namespace BlogMVC.Controllers
                 _context.Add(entry);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Detalle", new { id = entry.Id });
+                return RedirectToAction("Details", new { id = entry.Id });
             }
 
             return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = $"{Constantes.RolAdmin}, {Constantes.CRUDEntradas}")]
+        public async Task<IActionResult> Editar(int id)
+        {
+            var entrada = await _context.Entries.FirstOrDefaultAsync(c => c.Id == id);
+
+            if (entrada is null)
+            {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            var model = new EntryEditVM()
+            {
+                Id = entrada.Id,
+                Titulo = entrada.Titulo,
+                Cuerpo = entrada.Cuerpo,
+                ImagenPortadaActual = entrada.PortadaUrl
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = $"{Constantes.RolAdmin}, {Constantes.CRUDEntradas}")]
+        public async Task<IActionResult> Editar(EntryEditVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var entradaDb = await _context.Entries.FirstOrDefaultAsync(x => x.Id == model.Id);
+
+            if (entradaDb is null)
+            {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            string? portadaUrl = null;
+
+            if (model.ImagenPortada is not null)
+            {
+                portadaUrl = await _almacenarArchivos.Editar(model.ImagenPortadaActual, contenedor, model.ImagenPortada);
+            } else if (model.ImagenRemovida)
+            {
+                await _almacenarArchivos.Borrar(model.ImagenPortadaActual, contenedor);
+            }
+            else
+            {
+                portadaUrl = entradaDb.PortadaUrl;
+            }
+
+            string usuarioId = _serviceUsuarios.ObtenerUsuarioId()!;
+
+            entradaDb.Titulo = model.Titulo;
+            entradaDb.Cuerpo = model.Cuerpo;
+            entradaDb.PortadaUrl = portadaUrl;
+            entradaDb.UsuarioActualizacionId = usuarioId;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = entradaDb.Id });
         }
     }
 }
