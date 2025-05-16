@@ -9,5 +9,6 @@
         public required string EscritoPor { get; set; }
         public DateTime FechaPublicacion { get; set; }
         public bool MostrarBotonEdicion { get; set; }
+        public bool EntradaBorrada { get; set; }
     }
 }

@@ -30,7 +30,7 @@ namespace BlogMVC.Controllers
                 .Include(c => c.UsuarioCreacion)
                 .Include(c => c.Comments)
                     .ThenInclude(c => c.User)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync(c => c.Id == id);
 
             if (entry is null)
             {
@@ -46,7 +46,8 @@ namespace BlogMVC.Controllers
                 PortadaUrl = entry.PortadaUrl,
                 FechaPublicacion = entry.FechaPublicacion,
                 EscritoPor = entry.UsuarioCreacion!.Nombre,
-                MostrarBotonEdicion = puedeEditar
+                MostrarBotonEdicion = puedeEditar,
+                EntradaBorrada = entry.Borrado
             };
 
             return View(model);
@@ -95,7 +96,7 @@ namespace BlogMVC.Controllers
 
         [HttpGet]
         [Authorize(Roles = $"{Constantes.RolAdmin}, {Constantes.CRUDEntradas}")]
-        public async Task<IActionResult> Editar(int id)
+        public async Task<IActionResult> Edit(int id)
         {
             var entrada = await _context.Entries.FirstOrDefaultAsync(c => c.Id == id);
 
@@ -117,7 +118,7 @@ namespace BlogMVC.Controllers
 
         [HttpPost]
         [Authorize(Roles = $"{Constantes.RolAdmin}, {Constantes.CRUDEntradas}")]
-        public async Task<IActionResult> Editar(EntryEditVM model)
+        public async Task<IActionResult> Edit(EntryEditVM model)
         {
             if (!ModelState.IsValid)
             {
@@ -152,6 +153,23 @@ namespace BlogMVC.Controllers
             entradaDb.PortadaUrl = portadaUrl;
             entradaDb.UsuarioActualizacionId = usuarioId;
 
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = entradaDb.Id });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = $"{Constantes.RolAdmin},{Constantes.CRUDEntradas}")]
+        public async Task<IActionResult> Borrar(int id,  bool borrado)
+        {
+            var entradaDb = await _context.Entries.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (entradaDb is null)
+            {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            entradaDb.Borrado = borrado;
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Details", new { id = entradaDb.Id });
