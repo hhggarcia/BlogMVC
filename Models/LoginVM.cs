@@ -13,5 +13,7 @@ namespace BlogMVC.Models
 
         [Display(Name = "Recuerdame")]
         public bool Recuerdame { get; set; }
+
+        public string UrlRetorno { get; set; }
     }
 }

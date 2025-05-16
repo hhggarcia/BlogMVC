@@ -2,6 +2,7 @@
 using BlogMVC.Entity;
 using BlogMVC.Models;
 using BlogMVC.Services;
+using BlogMVC.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,13 @@ namespace BlogMVC.Controllers
             }
 
             var puedeEditar = await _serviceUsuarios.PuedeUsuarioHacerCrudEntradas();
+
+            if (entry.Borrado && !puedeEditar)
+            {
+                var urlRetorno = HttpContext.ObtenerUrlRetorno();
+                return RedirectToAction("Login", "Usuarios", new { urlRetorno });
+            }
+
             var model = new EntryDetailsVM()
             {
                 Id = entry.Id,

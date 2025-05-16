@@ -51,22 +51,28 @@ namespace BlogMVC.Controllers
             {
                 await signInManager.SignInAsync(user, isPersistent: true);
                 return RedirectToAction("Index", "Home");
-            } else
+            }
+            else
             {
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
-                return View(registerVM); 
+                return View(registerVM);
             }
         }
 
         [AllowAnonymous]
-        public IActionResult Login(string? mensaje = null) 
+        public IActionResult Login(string? mensaje = null, string? urlRetorno = null)
         {
             if (mensaje is not null)
             {
                 ViewData["mensaje"] = mensaje;
+            }
+
+            if (urlRetorno is not null)
+            {
+                ViewData["urlRetorno"] = urlRetorno;
             }
 
             return View();
@@ -85,7 +91,14 @@ namespace BlogMVC.Controllers
 
             if (result.Succeeded)
             {
-                return RedirectToAction("Index", "Home");
+                if (string.IsNullOrWhiteSpace(loginVM.UrlRetorno))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    return LocalRedirect(loginVM.UrlRetorno);
+                }
             }
             else
             {
@@ -141,7 +154,7 @@ namespace BlogMVC.Controllers
                 IsCheck = rolesUser.Contains(x.Name!)
             });
 
-            var modelo = new UsersRolesUserVM() 
+            var modelo = new UsersRolesUserVM()
             {
                 UserId = id,
                 Email = usuario.Email!,
@@ -167,8 +180,7 @@ namespace BlogMVC.Controllers
 
             var mensaje = $"Los roles de {usuario.Email} han sido actualizados";
 
-            return RedirectToAction("Listado", new {mensaje});
+            return RedirectToAction("Listado", new { mensaje });
         }
     }
 }
- 
