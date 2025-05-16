@@ -38,6 +38,24 @@
 
 <hr />
 
+@if(Model.Comentarios.Any())
+{
+    <h2>Comentarios</h2>
+
+    <div class="mb-4">
+        @foreach(var comentario in Model.Comentarios)
+        {
+            <div class="mb-2 p-2" style="border-left: 1px solid gray">
+                <h6>@comentario.EscritoPor</h6>
+                <h6>@comentario.FechaPublicacion.ToString("dd MMM, yyyy 'a las' hh:mm tt")</h6>
+                <div>
+                    @comentario.Cuerpo
+                </div>
+            </div>
+        }
+    </div>
+}
+
 <h2>Deja un Comentario</h2>
 
 @if(User.Identity!.IsAuthenticated)

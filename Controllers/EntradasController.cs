@@ -55,7 +55,14 @@ namespace BlogMVC.Controllers
                 FechaPublicacion = entry.FechaPublicacion,
                 EscritoPor = entry.UsuarioCreacion!.Nombre,
                 MostrarBotonEdicion = puedeEditar,
-                EntradaBorrada = entry.Borrado
+                EntradaBorrada = entry.Borrado,
+                Comentarios = entry.Comments.Select(c => new CommentVM()
+                {
+                    Id = c.Id,
+                    Cuerpo = c.Cuerpo,
+                    EscritoPor = c.User!.Nombre,
+                    FechaPublicacion = c.FechaPublicacion
+                })
             };
 
             return View(model);
