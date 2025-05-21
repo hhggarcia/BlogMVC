@@ -51,6 +51,14 @@
                 <div>
                     @comentario.Cuerpo
                 </div>
+                @if(comentario.MostrarBorrar)
+                {
+                    <div class="mt-2">
+                        <a asp-controller="Comments" asp-action="Borrar" class="btn btn-danger">
+                            Borrar
+                        </a>
+                    </div>
+                }
             </div>
         }
     </div>

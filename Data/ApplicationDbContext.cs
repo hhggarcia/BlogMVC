@@ -16,6 +16,14 @@ namespace BlogMVC.Data
             
         }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<Comment>().HasQueryFilter(c => !c.Borrado);
+            builder.Entity<Entry>().HasQueryFilter(c => !c.Borrado);
+        }
+
         public DbSet<Entry> Entries { get; set; }
         public DbSet<Comment> Comments { get; set; }
     }

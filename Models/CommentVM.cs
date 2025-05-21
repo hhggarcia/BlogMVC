@@ -6,5 +6,6 @@
         public required string Cuerpo { get; set; }
         public required string EscritoPor { get; set; }
         public DateTime FechaPublicacion { get; set; }
+        public bool MostrarBorrar { get; set; }
     }
 }

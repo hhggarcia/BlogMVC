@@ -1,0 +1,65 @@
+﻿@using BlogMVC.Data
+@using BlogMVC.Models
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<ApplicationDbContext> dbFactory
+@implements IDisposable
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var entrada in entradasVMs)
+    {
+        <div class="col">
+            <div class="card h-100">
+                @if(string.IsNullOrEmpty(entrada.PortadaUrl))
+                {
+                    <a href="/entradas/details/@entrada.Id">
+                        <img src="/img/404.png" class="card-img-top" alt="portada de la entrada" />
+                    </a>
+                } else 
+                {
+                    <a href="/entradas/details/@entrada.Id">
+                        <img src="@entrada.PortadaUrl" class="card-img-top" alt="portada de la entrada" />
+                    </a>
+                }                
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a class="text-decoration-none" href="/entradas/details/@entrada.Id">@entrada.Titulo</a>
+                    </h5>
+                    <p class="card-text">
+                        <small class="text-body-secondary">
+                            @entrada.FechaPublicacion.ToString("dd MMM, yyyy")
+                    </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+
+    private ApplicationDbContext? dbContext;
+    public List<HomeIndexEntradasVM> entradasVMs = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        dbContext = dbFactory.CreateDbContext();
+    }
+
+    private async Task BuscarEntradas()
+    {
+        entradasVMs = await dbContext!.Entries
+        .OrderByDescending(c => c.FechaPublicacion)
+        .Select(c => new HomeIndexEntradasVM()
+            {
+                Id = c.Id,
+                Titulo = c.Titulo,
+                PortadaUrl = c.PortadaUrl,
+                FechaPublicacion = c.FechaPublicacion
+            }).ToListAsync();
+    }
+
+    public void Dispose()
+    {
+        dbContext?.Dispose();
+    }
+}

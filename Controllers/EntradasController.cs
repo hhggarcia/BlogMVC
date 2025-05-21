@@ -28,6 +28,7 @@ namespace BlogMVC.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var entry = await _context.Entries
+                .IgnoreQueryFilters()
                 .Include(c => c.UsuarioCreacion)
                 .Include(c => c.Comments)
                     .ThenInclude(c => c.User)
@@ -46,6 +47,10 @@ namespace BlogMVC.Controllers
                 return RedirectToAction("Login", "Usuarios", new { urlRetorno });
             }
 
+            var puedeBorrarComentarios = await _serviceUsuarios.PuedeUsuarioHacerCrudComentarios();
+
+            var usuarioId = _serviceUsuarios.ObtenerUsuarioId();
+
             var model = new EntryDetailsVM()
             {
                 Id = entry.Id,
@@ -61,7 +66,8 @@ namespace BlogMVC.Controllers
                     Id = c.Id,
                     Cuerpo = c.Cuerpo,
                     EscritoPor = c.User!.Nombre,
-                    FechaPublicacion = c.FechaPublicacion
+                    FechaPublicacion = c.FechaPublicacion,
+                    MostrarBorrar = puedeBorrarComentarios || usuarioId == c.UsuarioId,
                 })
             };
 
@@ -113,7 +119,9 @@ namespace BlogMVC.Controllers
         [Authorize(Roles = $"{Constantes.RolAdmin}, {Constantes.CRUDEntradas}")]
         public async Task<IActionResult> Edit(int id)
         {
-            var entrada = await _context.Entries.FirstOrDefaultAsync(c => c.Id == id);
+            var entrada = await _context.Entries
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (entrada is null)
             {
@@ -140,7 +148,7 @@ namespace BlogMVC.Controllers
                 return View(model);
             }
 
-            var entradaDb = await _context.Entries.FirstOrDefaultAsync(x => x.Id == model.Id);
+            var entradaDb = await _context.Entries.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == model.Id);
 
             if (entradaDb is null)
             {
@@ -177,7 +185,7 @@ namespace BlogMVC.Controllers
         [Authorize(Roles = $"{Constantes.RolAdmin},{Constantes.CRUDEntradas}")]
         public async Task<IActionResult> Borrar(int id,  bool borrado)
         {
-            var entradaDb = await _context.Entries.FirstOrDefaultAsync(x => x.Id == id);
+            var entradaDb = await _context.Entries.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == id);
 
             if (entradaDb is null)
             {
