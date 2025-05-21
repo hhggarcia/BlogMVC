@@ -98,9 +98,22 @@
         const contenido = document.getElementById("contenido");
         contenido.innerHTML = converter.convert();
 
-        document.querySelectorAll('prev').foreach(el => {
+        document.querySelectorAll('pre').foreach(el => {
             hljs.highlightElement(el);
         });
+
+        function ajustarAncho(){
+            const imagen = document.querySelectorAll("img.img-fluid");
+            const contenido = document.getElementById("contenido");
+
+            if(imagen && contenido)
+            {
+                contenido.style.width = imagen.clientWidth + "px";
+            }
+        }
+
+        window.addEventListener("load", ajustarAncho);
+        window.addEventListener("resize", ajustarAncho);
 
     </script>
 }
