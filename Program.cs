@@ -1,3 +1,4 @@
+using BlogMVC.Config;
 using BlogMVC.Data;
 using BlogMVC.Entity;
 using BlogMVC.Services;
@@ -7,6 +8,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOptions<ConfiguracionesIA>()
+    .Bind(builder.Configuration.GetSection(ConfiguracionesIA.Seccion))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
 
 builder.Services.AddServerSideBlazor();
 
