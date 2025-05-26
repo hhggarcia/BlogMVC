@@ -6,6 +6,8 @@ using BlogMVC.Utils;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using OpenAI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,12 @@ builder.Services.AddOptions<ConfiguracionesIA>()
     .Bind(builder.Configuration.GetSection(ConfiguracionesIA.Seccion))
     .ValidateDataAnnotations()
     .ValidateOnStart();
+
+builder.Services.AddScoped(sp =>
+{
+    var configAI = sp.GetRequiredService<IOptions<ConfiguracionesIA>>();
+    return new OpenAIClient(configAI.Value.KeyOpenAI);
+});
 
 
 builder.Services.AddServerSideBlazor();
@@ -22,6 +30,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddTransient<IAlmacenadorArchivo, AlmacenadorArchivosLocal>();
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
+builder.Services.AddTransient<IServicioChat, ServicioChatOpenAI>();
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => 
 options.UseSqlServer("name=DefaultConnection")

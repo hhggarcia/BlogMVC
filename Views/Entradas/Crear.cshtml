@@ -22,6 +22,7 @@
         <label asp-for="Cuerpo" class="form-label"></label>
         <input asp-for="Cuerpo" style="display: none" class="form-control"/>
         <div id="editor"></div>
+        <button type="button" onclick="generarCuerpo()" class="btn btn-secondary mt-2">Generar</button>
         <span id="cuerpo-error" class="text-danger"></span>
     </div>
 
@@ -36,7 +37,72 @@
     <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Cancelar</a>
 </form>
 
+<div class="modal fade" id="modal-cuerpo-ia" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-x1">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Articulo generado por la IA</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="output"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="aceptarCambiosCuerpoIA()">Aceptar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts{
     <partial name="_ValidationScriptsPartial"/>
     <script src="~/js/formulario-entradas.js"></script>
+
+    <script>
+
+        const modalCuerpoIA = new bootstrap.Modal(document.getElementById("modal-cuerpo-ia"));
+        let articuloSugeridoPorIA = '';
+        async function generarCuerpo(){
+            const titulo = document.getElementById("Titulo").value;
+            const respuesta = await fetch("Entradas/GenerarCuerpo?titulo=" + encodeURIComponent(titulo), {
+                method: "GET"
+            });
+             
+            if(!respuesta.ok){
+                const contenido = await respuesta.text();
+                alert(contenido);
+                return;
+            }
+
+            const output = document.getElementById('output');
+            output.innnerHTML = '';
+
+            const reader = respuesta.body.getReader();
+            const decoder = new TextDecoder();
+            let articulo = "";
+            modalCuerpoIA.show();
+
+            while(true){
+                const { value, done } = await reader.read();
+
+                if(done){
+                    break;
+                }
+
+                articulo += decoder.decode(value, { stream : true });
+                output.innnerHTML = articulo;
+            }
+
+            articuloSugeridoPorIA = articulo;
+
+            
+        }
+
+        function aceptarCambiosCuerpoIA(){
+            const delta = quill.clipboard.convert({ html : articuloSugeridoPorIA });
+            quill.setContents(delta, 'silent');
+            modalCuerpoIA.hide();
+        }
+    </script>
 }

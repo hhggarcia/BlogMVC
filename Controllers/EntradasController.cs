@@ -14,14 +14,17 @@ namespace BlogMVC.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IAlmacenadorArchivo _almacenarArchivos;
         private readonly IServicioUsuarios _serviceUsuarios;
+        private readonly IServicioChat _servicioChat;
         private readonly string contenedor = "entradas";
         public EntradasController(ApplicationDbContext context,
             IAlmacenadorArchivo almacenarArchivos,
-            IServicioUsuarios serviceUsuarios)
+            IServicioUsuarios serviceUsuarios,
+            IServicioChat servicioChat)
         {
             _context = context;
             _almacenarArchivos = almacenarArchivos;
             _serviceUsuarios = serviceUsuarios;
+            _servicioChat = servicioChat;
         }
 
         [HttpGet]
@@ -196,6 +199,23 @@ namespace BlogMVC.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Details", new { id = entradaDb.Id });
+        }
+
+        [HttpGet]
+        public async Task GenerarCuerpo([FromQuery] string titulo)
+        {
+            if (string.IsNullOrEmpty(titulo))
+            {
+                Response.StatusCode = StatusCodes.Status400BadRequest;
+                await Response.WriteAsync("El titulo no puede estar vacio");
+                return;
+            }
+
+            await foreach (var segmento in _servicioChat.GenerarCuerpoStream(titulo))
+            {
+                await Response.WriteAsync(segmento);
+                await Response.Body.FlushAsync();
+            }
         }
     }
 }
