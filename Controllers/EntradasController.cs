@@ -6,6 +6,8 @@ using BlogMVC.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.ClientModel.Primitives;
 
 namespace BlogMVC.Controllers
 {
@@ -15,16 +17,22 @@ namespace BlogMVC.Controllers
         private readonly IAlmacenadorArchivo _almacenarArchivos;
         private readonly IServicioUsuarios _serviceUsuarios;
         private readonly IServicioChat _servicioChat;
+        private readonly IWebHostEnvironment _env;
+        private readonly IServicioImagenes _servicioImagenes;
         private readonly string contenedor = "entradas";
         public EntradasController(ApplicationDbContext context,
             IAlmacenadorArchivo almacenarArchivos,
             IServicioUsuarios serviceUsuarios,
-            IServicioChat servicioChat)
+            IServicioChat servicioChat,
+            IWebHostEnvironment env,
+            IServicioImagenes servicioImagenes)
         {
             _context = context;
             _almacenarArchivos = almacenarArchivos;
             _serviceUsuarios = serviceUsuarios;
             _servicioChat = servicioChat;
+            _env = env;
+            _servicioImagenes = servicioImagenes;
         }
 
         [HttpGet]
@@ -96,26 +104,28 @@ namespace BlogMVC.Controllers
 
             if (model.ImagenPortada is not null)
             {
-                portadaUrl = await _almacenarArchivos.Almacenar(contenedor, model.ImagenPortada);
-
-                string usuarioId = _serviceUsuarios.ObtenerUsuarioId()!;
-
-                var entry = new Entry()
-                {
-                    Titulo = model.Titulo,
-                    Cuerpo = model.Cuerpo,
-                    FechaPublicacion = DateTime.UtcNow,
-                    PortadaUrl = portadaUrl,
-                    UsuarioCreacionId = usuarioId,
-                };
-
-                _context.Add(entry);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("Details", new { id = entry.Id });
+                portadaUrl = await _almacenarArchivos.Almacenar(contenedor, model.ImagenPortada);                
+            } else if (model.ImagenPortadaIA is not null)
+            {
+                var archivo = Base64AIFormFile(model.ImagenPortadaIA);
+                portadaUrl = await _almacenarArchivos.Almacenar(contenedor, archivo);
             }
 
-            return View(model);
+            string usuarioId = _serviceUsuarios.ObtenerUsuarioId()!;
+
+            var entry = new Entry()
+            {
+                Titulo = model.Titulo,
+                Cuerpo = model.Cuerpo,
+                FechaPublicacion = DateTime.UtcNow,
+                PortadaUrl = portadaUrl,
+                UsuarioCreacionId = usuarioId,
+            };
+
+            _context.Add(entry);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = entry.Id });
         }
 
         [HttpGet]
@@ -163,7 +173,13 @@ namespace BlogMVC.Controllers
             if (model.ImagenPortada is not null)
             {
                 portadaUrl = await _almacenarArchivos.Editar(model.ImagenPortadaActual, contenedor, model.ImagenPortada);
-            } else if (model.ImagenRemovida)
+            } 
+            else if(model.ImagenPortadaIA is not null)
+            {
+                var archivo = Base64AIFormFile(model.ImagenPortadaIA);
+                portadaUrl = await _almacenarArchivos.Editar(model.ImagenPortadaActual, contenedor, archivo);
+            }
+            else if (model.ImagenRemovida)
             {
                 await _almacenarArchivos.Borrar(model.ImagenPortadaActual, contenedor);
             }
@@ -216,6 +232,34 @@ namespace BlogMVC.Controllers
                 await Response.WriteAsync(segmento);
                 await Response.Body.FlushAsync();
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GenerarImagen([FromQuery] string titulo)
+        {
+            if (string.IsNullOrWhiteSpace(titulo))
+            {
+                return BadRequest("El titulo no puede estar vacio o con espacios");
+            }
+
+            //if (_env.IsDevelopment())
+            //{
+            //    var rutaImagen = Path.Combine(_env.WebRootPath, "img", "ia.png");
+            //    var imagenBytes = await System.IO.File.ReadAllBytesAsync(rutaImagen);
+            //    await Task.Delay(1000);
+            //    return File(imagenBytes, "imagen/png");
+            //}
+
+            var bytes = await _servicioImagenes.GenerarPortadaEntrada(titulo);
+            return File(bytes, "image/png");
+        }
+
+        private IFormFile Base64AIFormFile(string base64)
+        {
+            byte[] bytes = Convert.FromBase64String(base64);
+            var stream = new MemoryStream(bytes);
+            IFormFile archivo = new FormFile(stream, 0, bytes.Length, "image", "imagen.png");
+            return archivo;
         }
     }
 }

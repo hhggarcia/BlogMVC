@@ -31,6 +31,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IAlmacenadorArchivo, AlmacenadorArchivosLocal>();
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddTransient<IServicioChat, ServicioChatOpenAI>();
+builder.Services.AddTransient<IServicioImagenes, ServicioImagenesOpenAI>();
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => 
 options.UseSqlServer("name=DefaultConnection")

@@ -64,7 +64,6 @@ namespace BlogMVC.Services
                 {
                     yield return contenido.Text;
                 }
-
             }
         }
 
