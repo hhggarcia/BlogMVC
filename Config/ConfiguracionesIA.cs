@@ -9,6 +9,7 @@ namespace BlogMVC.Config
         public required string ModeloTexto { get; set; }
         [Required]
         public required string ModeloImagenes { get; set; }
+        public required string ModeloSentimientos { get; set; }
         [Required]
         public required string KeyOpenAI { get; set; }
     }

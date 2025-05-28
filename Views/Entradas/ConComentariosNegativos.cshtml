@@ -1,0 +1,32 @@
+﻿@model EntradasComentariosNegativosVM
+
+@{
+    ViewData["Title"] = "Entradas con comentarios negativos";
+}
+
+<h2>Entradas  con Comentarios Negativos</h2>
+
+@if(Model.Entradas.Any()){
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Titulo</th>
+                <th>Cantidad comentarios negativos</th>
+                <th>Accion</th>
+            </tr>
+            <tbody>
+                @foreach (var item in Model.Entradas)
+                {
+                    <tr>
+                        <td>@item.Titulo</td>
+                        <td>@item.CantidadComentariosNegativos</td>
+                        <td><a class="btn btn-primary" asp-action="Details" asp-route-id="@item.Id">Ver Entrada</a></td>
+                    </tr>
+                }
+            </tbody>
+        </thead>
+    </table>
+
+} else{
+    <p>No hay entradas con mensajes negativos</p>
+}

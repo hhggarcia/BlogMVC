@@ -1,6 +1,7 @@
 using BlogMVC.Config;
 using BlogMVC.Data;
 using BlogMVC.Entity;
+using BlogMVC.Jobs;
 using BlogMVC.Services;
 using BlogMVC.Utils;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -32,6 +33,10 @@ builder.Services.AddTransient<IAlmacenadorArchivo, AlmacenadorArchivosLocal>();
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
 builder.Services.AddTransient<IServicioChat, ServicioChatOpenAI>();
 builder.Services.AddTransient<IServicioImagenes, ServicioImagenesOpenAI>();
+builder.Services.AddScoped<IAnalisisSentimientos, AnalisisSentimientosOpenAI>();
+
+builder.Services.AddHttpClient();
+builder.Services.AddHostedService<AnalisisSentimientos>();
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => 
 options.UseSqlServer("name=DefaultConnection")
@@ -50,6 +55,15 @@ builder.Services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.Ap
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    if (dbContext.Database.IsRelational())
+    {
+        dbContext.Database.Migrate();
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

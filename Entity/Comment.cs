@@ -14,7 +14,6 @@ namespace BlogMVC.Entity
         public string? UsuarioId { get; set; }
         public User? User { get; set; }
         public bool Borrado { get; set; }
-
-
+        public int? Puntuacion { get; set; }
     }
 }

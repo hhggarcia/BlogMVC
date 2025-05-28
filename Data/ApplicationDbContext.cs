@@ -26,5 +26,6 @@ namespace BlogMVC.Data
 
         public DbSet<Entry> Entries { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Lote> Lotes { get; set; }
     }
 }
